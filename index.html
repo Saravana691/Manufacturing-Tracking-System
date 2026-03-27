@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Manufacturing ERP - V11 (Final Polish)</title>
+    <title>Manufacturing ERP - V11.1 (Final Polish)</title>
     <script src="https://accounts.google.com/gsi/client" async defer></script>
     <script src="https://apis.google.com/js/api.js"></script>
     <style>
@@ -20,23 +20,23 @@
         * { box-sizing: border-box; }
         body { margin: 0; padding: 0; font-family: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background-color: var(--color-bg); color: var(--color-text); line-height: 1.5; }
 
-        /* Login Screen Redesign */
+        /* Login Screen */
         .login-container { display: flex; justify-content: center; align-items: center; height: 100vh; background: linear-gradient(135deg, #005073 0%, #00283a 100%); padding: 20px; }
-        .login-box { background: white; padding: 40px; border-radius: var(--radius-base); box-shadow: var(--shadow-md); width: 100%; max-width: 380px; }
+        .login-box { background: white; padding: 40px; border-radius: var(--radius-base); box-shadow: var(--shadow-md); width: 100%; max-width: 420px; }
         .login-box h1 { margin: 0 0 10px 0; text-align: center; font-size: 22px; color: var(--color-primary); }
         .login-box p { text-align: center; color: var(--color-text-secondary); margin-bottom: 25px; font-size: 14px; }
         .form-group { margin-bottom: 16px; }
-        label { display: block; margin-bottom: 6px; font-weight: 600; font-size: 12px; color: var(--color-text-secondary); text-transform: uppercase; letter-spacing: 0.5px; }
-        input, select, textarea { width: 100%; padding: 10px 12px; border: 1px solid var(--color-border); border-radius: var(--radius-base); font-size: 14px; background-color: var(--color-surface); font-family: inherit; color: var(--color-text); transition: border-color 0.2s; }
+        label { display: block; margin-bottom: 6px; font-weight: 600; font-size: 12px; color: var(--color-text); text-transform: uppercase; letter-spacing: 0.5px; }
+        input, select, textarea { width: 100%; padding: 8px 12px; border: 1px solid var(--color-border); border-radius: var(--radius-base); font-size: 14px; background-color: var(--color-surface); font-family: inherit; color: var(--color-text); transition: border-color 0.2s; }
         input:focus, select:focus { outline: none; border-color: var(--color-primary); box-shadow: 0 0 0 2px rgba(0, 80, 115, 0.1); }
         input[readonly] { background-color: #f5f5f5; color: #777; cursor: not-allowed; }
         
         .login-buttons { display: flex; flex-direction: column; gap: 10px; margin-top: 20px; }
-        .btn { padding: 10px 16px; border: none; border-radius: var(--radius-base); cursor: pointer; font-size: 14px; font-weight: 600; transition: all 0.2s ease; display: inline-flex; align-items: center; justify-content: center; gap: 8px; text-transform: uppercase; letter-spacing: 0.5px; }
-        .btn-primary { background-color: #3b5998; color: white; } /* Slightly brighter blue for main actions */
-        .btn-primary:hover { background-color: #2d4373; }
-        .btn-secondary { background-color: var(--color-surface); border: 1px solid var(--color-border); color: var(--color-primary); }
-        .btn-secondary:hover { background-color: var(--color-bg); }
+        .btn { padding: 8px 16px; border: none; border-radius: var(--radius-base); cursor: pointer; font-size: 13px; font-weight: 600; transition: all 0.2s ease; display: inline-flex; align-items: center; justify-content: center; gap: 8px; text-transform: uppercase; letter-spacing: 0.5px; }
+        .btn-primary { background-color: var(--color-primary); color: white; }
+        .btn-primary:hover { background-color: var(--color-primary-hover); }
+        .btn-secondary { background-color: var(--color-secondary); color: var(--color-text); }
+        .btn-secondary:hover { background-color: var(--color-secondary-hover); }
         .btn-danger { background-color: #fdeaea; color: var(--color-error); border: 1px solid #f5c6c6; }
         .btn-danger:hover { background-color: #f8d0d0; }
         .btn-small { padding: 4px 10px; font-size: 11px; }
@@ -168,7 +168,7 @@
 
     <div id="appContainer" class="app-container">
         <div class="app-header">
-            <h1>⚙️ Manufacturing ERP - V11 Final</h1>
+            <h1>⚙️ Manufacturing ERP - V11.1 Final</h1>
             <div class="user-info">
                 <span>👤 <span id="currentUser">User</span> (<span id="currentUserRoleBadge">Staff</span>)</span>
                 <button onclick="saveAndExit()" style="background: #c0152f; border: none; padding: 6px 12px; border-radius: 4px; color: white; cursor: pointer; font-weight: bold; margin-left: 10px;">💾 Save & Exit</button>
@@ -1035,9 +1035,51 @@
         function exportVendorMaster() { downloadCSVBlob(getCSVStr(app.vendors.map(v => ({...v, TypeFoundry: v.types?.foundry||false, TypeJobWork: v.types?.jobwork||false}))), 'Vendor_Master.csv'); }
         
         function exportFoundryOrder() { const foData = []; app.foundryOrders.forEach(o => { const sup = app.vendors.find(v => v.code === o.supplierCode); o.items.forEach(i => { const mat = app.materials.find(m=>m.id===i.componentId); let aLine = 0, rLine = 0; app.foundryLots.filter(l => l.orderNo === o.orderNo).forEach(lot => { const lI = lot.items.find(li => li.componentId === i.componentId); if(lI) { aLine += lI.acceptedQty; rLine += (lI.rejectedQty||0); } }); const pendLine = i.qtyOrdered - aLine - rLine; foData.push({ OrderNo: o.orderNo, Date: o.date, VendorCode: o.supplierCode, VendorName: sup?sup.name:'', ExpectedDue: o.expectedDue, ItemID: i.componentId, ItemName: mat?mat.name:'', QtyOrdered: i.qtyOrdered, TotalAccepted: aLine, PermRejected: rLine, PendingIncRework: pendLine>0?pendLine:0, Status: pendLine<=0?'Completed':aLine>0?'Partial':'Pending' }); }); }); downloadCSVBlob(getCSVStr(foData), 'Purchase_Foundry_Orders.csv'); }
-        function exportFoundryLots() { const flData = []; app.foundryLots.forEach(l => { const o = app.foundryOrders.find(x => x.orderNo === l.orderNo); const sup = o ? app.vendors.find(v => v.code === o.supplierCode) : null; let exp = o ? o.expectedDue : ''; let varStr = ''; if(exp && l.receivedDate) { const diff = Math.ceil((new Date(l.receivedDate).setHours(0,0,0,0) - new Date(exp).setHours(0,0,0,0))/(1000*60*60*24)); varStr = diff > 0 ? `+${diff} Days Late` : `${diff} Days`; } l.items.forEach(i => { const mat = app.materials.find(m=>m.id===i.componentId); const rejP = i.receivedQty > 0 ? (((i.rejectedQty||0)+(i.reworkQty||0))/i.receivedQty*100).toFixed(1)+'%' : '0%'; flData.push({ OrderNo: l.orderNo, ExpectedDue: exp, BatchID: l.batchId, VehicleNo: l.vehicleNo||'', ReceivedDate: l.receivedDate, DeliveryVariance: varStr, VendorCode: sup?sup.code:'', VendorName: sup?sup.name:'', ItemID: i.componentId, ItemName: mat?mat.name:'', ReceivedQty: i.receivedQty, TotalWeight: i.totalWeight||0, AvgWeight: i.avgWeight||0, AcceptedQty: i.acceptedQty, ReworkQty: i.reworkQty||0, RejectedQty: i.rejectedQty||0, RejectionRate: rejP }); }); }); downloadCSVBlob(getCSVStr(flData), 'Purchase_Foundry_Lots_VendorRating.csv'); }
+        
+        function exportFoundryLots() { 
+            const flData = []; 
+            app.foundryLots.forEach(l => { 
+                const o = app.foundryOrders.find(x => x.orderNo === l.orderNo); 
+                const sup = o ? app.vendors.find(v => v.code === o.supplierCode) : null; 
+                let expectedDue = o ? o.expectedDue : '';
+                let deliveryVariance = '';
+                if(expectedDue && l.receivedDate) {
+                    const diff = Math.ceil((new Date(l.receivedDate).setHours(0,0,0,0) - new Date(expectedDue).setHours(0,0,0,0)) / (1000*60*60*24));
+                    deliveryVariance = diff > 0 ? `+${diff} Days Late` : `${diff} Days`;
+                }
+
+                l.items.forEach(i => { 
+                    const mat = app.materials.find(m=>m.id===i.componentId); 
+                    const rejPercent = i.receivedQty > 0 ? (((i.rejectedQty||0)+(i.reworkQty||0))/i.receivedQty*100).toFixed(1)+'%' : '0%';
+                    flData.push({ OrderNo: l.orderNo, ExpectedDue: expectedDue, BatchID: l.batchId, VehicleNo: l.vehicleNo||'', ReceivedDate: l.receivedDate, DeliveryVariance: deliveryVariance, VendorCode: sup?sup.code:'', VendorName: sup?sup.name:'', ItemID: i.componentId, ItemName: mat?mat.name:'', ReceivedQty: i.receivedQty, TotalWeight: i.totalWeight||0, AvgWeight: i.avgWeight||0, AcceptedQty: i.acceptedQty, ReworkQty: i.reworkQty||0, RejectedQty: i.rejectedQty||0, RejectionRate: rejPercent }); 
+                }); 
+            }); 
+            downloadCSVBlob(getCSVStr(flData), 'Purchase_Foundry_Lots_VendorRating.csv'); 
+        }
+
         function exportJobWork() { const jwData = []; app.jobWorkOrders.forEach(o => { const sup = app.vendors.find(v => v.code === o.subCode); const eList = o.expectedItems || o.items || []; eList.forEach(i => { const mat = app.materials.find(m=>m.id===i.componentId); let aLine = 0, rLine = 0; app.jobWorkLots.filter(l => l.refOrderNo === o.orderNo).forEach(lot => { const lI = lot.items.find(li => li.componentId === i.componentId); if(lI) { aLine += lI.acceptedQty; rLine += (lI.rejectedQty||0); } }); const pLine = (i.qtyExpected||i.qtySent||0) - aLine - rLine; jwData.push({ OrderNo: o.orderNo, Date: o.date, VendorCode: o.subCode, VendorName: sup?sup.name:'', NatureOfWork: o.nature, VehicleNo: o.vehicleNo||'', ExpectedDue: o.expectedDue, ExpectedItemID: i.componentId, ExpectedItemName: mat?mat.name:'', QtyExpected: (i.qtyExpected||i.qtySent||0), TotalAccepted: aLine, PermRejected: rLine, PendingIncRework: pLine>0?pLine:0, Status: pLine<=0?'Completed':aLine>0?'Partial':'Pending' }); }); }); downloadCSVBlob(getCSVStr(jwData), 'Job_Work_Orders.csv'); }
-        function exportJobWorkLots() { const jlData = []; app.jobWorkLots.forEach(l => { const o = app.jobWorkOrders.find(x => x.orderNo === l.refOrderNo); const sup = o ? app.vendors.find(v => v.code === o.subCode) : null; let exp = o ? o.expectedDue : ''; let varStr = ''; if(exp && l.receivedDate) { const diff = Math.ceil((new Date(l.receivedDate).setHours(0,0,0,0) - new Date(exp).setHours(0,0,0,0))/(1000*60*60*24)); varStr = diff > 0 ? `+${diff} Days Late` : `${diff} Days`; } l.items.forEach(i => { const mat = app.materials.find(m=>m.id===i.componentId); const rejP = i.receivedQty > 0 ? (((i.rejectedQty||0)+(i.reworkQty||0))/i.receivedQty*100).toFixed(1)+'%' : '0%'; jlData.push({ RefOrderNo: l.refOrderNo, ExpectedDue: exp, ChallanRef: l.lotNo, ReceivingBatchID: l.batchId, VehicleNo: l.vehicleNo||'', ReceivedDate: l.receivedDate, DeliveryVariance: varStr, VendorCode: sup?sup.code:'', VendorName: sup?sup.name:'', ItemID: i.componentId, ItemName: mat?mat.name:'', BatchIDSource: i.batchId, ReceivedQty: i.receivedQty, AcceptedQty: i.acceptedQty, ReworkQty: i.reworkQty||0, RejectedQty: i.rejectedQty||0, RejectionRate: rejP }); }); }); downloadCSVBlob(getCSVStr(jlData), 'Job_Work_Lots_VendorRating.csv'); }
+        
+        function exportJobWorkLots() { 
+            const jlData = []; 
+            app.jobWorkLots.forEach(l => { 
+                const o = app.jobWorkOrders.find(x => x.orderNo === l.refOrderNo); 
+                const sup = o ? app.vendors.find(v => v.code === o.subCode) : null; 
+                let expectedDue = o ? o.expectedDue : '';
+                let deliveryVariance = '';
+                if(expectedDue && l.receivedDate) {
+                    const diff = Math.ceil((new Date(l.receivedDate).setHours(0,0,0,0) - new Date(expectedDue).setHours(0,0,0,0)) / (1000*60*60*24));
+                    deliveryVariance = diff > 0 ? `+${diff} Days Late` : `${diff} Days`;
+                }
+
+                l.items.forEach(i => { 
+                    const mat = app.materials.find(m=>m.id===i.componentId); 
+                    const rejPercent = i.receivedQty > 0 ? (((i.rejectedQty||0)+(i.reworkQty||0))/i.receivedQty*100).toFixed(1)+'%' : '0%';
+                    jlData.push({ RefOrderNo: l.refOrderNo, ExpectedDue: exp, ChallanRef: l.lotNo, ReceivingBatchID: l.batchId, VehicleNo: l.vehicleNo||'', ReceivedDate: l.receivedDate, DeliveryVariance: varStr, VendorCode: sup?sup.code:'', VendorName: sup?sup.name:'', ItemID: i.componentId, ItemName: mat?mat.name:'', BatchIDSource: i.batchId, ReceivedQty: i.receivedQty, AcceptedQty: i.acceptedQty, ReworkQty: i.reworkQty||0, RejectedQty: i.rejectedQty||0, RejectionRate: rejP }); 
+                }); 
+            }); 
+            downloadCSVBlob(getCSVStr(jlData), 'Job_Work_Lots_VendorRating.csv'); 
+        }
+
         function exportAssembly() { const aData = []; app.assemblyLogs.forEach(l => { const cList = l.consumedItems || l.items || []; cList.forEach(i => { const mat = app.materials.find(m=>m.id===i.componentId); const outMat = app.materials.find(m=>m.id===l.outputItem); aData.push({ LogID: l.id, Date: l.date, Remarks: l.remarks, AddToStock: l.addToStock?'Yes':'No', OutputItem: l.outputItem||'', OutputItemName: outMat?outMat.name:'', OutputQty: l.outputQty||0, OutputBatchID: l.outputBatchId||'', ConsumedItemID: i.componentId, ConsumedItemName: mat?mat.name:'', ConsumedBatchID: i.batchId, QtyConsumed: i.qty }); }); }); downloadCSVBlob(getCSVStr(aData), 'Production_Logs.csv'); }
         function exportPatterns() { const pData = app.patterns.map(p => { const info = getPatternLocationInfo(p.code); return { Code: p.code, Name: p.name, LastLogDate: info.date, CurrentLocation: info.loc }; }); downloadCSVBlob(getCSVStr(pData), 'Pattern_Master.csv'); }
         function exportPatternLogs() { const plData = app.patternLogs.map(l => { const p = app.patterns.find(pat => pat.code === l.patternCode); const v = app.vendors.find(ven => ven.code === l.vendorCode); return { LogDate: l.date, Type: l.type, PatternCode: l.patternCode, PatternName: p?p.name:'', VendorCode: l.vendorCode, VendorName: v?v.name:'' }; }); downloadCSVBlob(getCSVStr(plData), 'Pattern_Logs.csv'); }
@@ -1093,7 +1135,7 @@
                         app.assemblyLogs = imported.assemblyLogs || []; app.patterns = imported.patterns || []; app.patternLogs = imported.patternLogs || [];
                         saveDataToStorage(); renderAllSections(); alert('✅ Data Restored Successfully!'); 
                     }
-                } catch (err) { alert('❌ Error reading backup file. Is it a valid JSON?'); console.error(err); }
+                } catch (err) { alert('❌ Error reading backup file.'); console.error(err); }
                 event.target.value = ''; 
             }; reader.readAsText(file);
         }
@@ -1133,6 +1175,8 @@
                     gapi.load('client', () => {
                         gapi.client.setToken({access_token: googleAccessToken});
                         gapi.client.load('drive', 'v3', async () => {
+                            updateGoogleDriveUI(); 
+                            listGoogleDriveBackups(); 
                             await ensureGoogleFolder();
                             try {
                                 let query = `mimeType='application/json' and trashed=false and '${googleFolderID}' in parents`;
