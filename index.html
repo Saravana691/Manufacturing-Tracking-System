@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Manufacturing ERP - V11.1</title>
+    <title>Manufacturing ERP - V11.2</title>
+    <link rel="icon" href="data:,">
     <script src="https://accounts.google.com/gsi/client" async defer></script>
     <script src="https://apis.google.com/js/api.js"></script>
     <style>
@@ -543,7 +544,7 @@
 
         function initAuth() { 
             const users = JSON.parse(localStorage.getItem('mfgUsers') || '{}'); loginMode = Object.keys(users).length === 0 ? 'signup' : 'signin'; showLoginForm(); 
-            // Removed default month filter assignment to show 'All Time' initially
+            // Default filter left empty for 'All Time' display on load
         }
         
         function toggleLoginMode() { loginMode = loginMode === 'signin' ? 'signup' : 'signin'; showLoginForm(); }
@@ -1007,6 +1008,10 @@
         // ============================================================================
         // EDIT FUNCTIONS FOR ADMIN
         // ============================================================================
+        function editMaterial(id) { const mat = app.materials.find(m => m.id === id); if (mat) { document.getElementById('mat-id').value = mat.id; document.getElementById('mat-id').readOnly = true; document.getElementById('mat-name').value = mat.name; document.getElementById('mat-type').value = mat.type; document.getElementById('mat-uom').value = mat.uom; document.getElementById('mat-opening-stock').value = mat.openingStock; document.getElementById('mat-min-stock').value = mat.minStock; document.getElementById('mat-lead-time').value = mat.leadTime; document.getElementById('mat-price').value = mat.price; document.getElementById('addMaterialModal').classList.add('active'); } }
+        function editVendor(code) { const vendor = app.vendors.find(v => v.code === code); if (vendor) { document.getElementById('vendor-code').value = vendor.code; document.getElementById('vendor-code').readOnly = true; document.getElementById('vendor-name').value = vendor.name; document.getElementById('ven-type-foundry').checked = vendor.types?.foundry||false; document.getElementById('ven-type-jobwork').checked = vendor.types?.jobwork||false; document.getElementById('vendor-contact').value = vendor.contact||''; document.getElementById('vendor-address').value = vendor.address||''; document.getElementById('vendor-gst').value = vendor.gst||''; document.getElementById('addVendorModal').classList.add('active'); } }
+        function editPattern(code) { const pat = app.patterns.find(p => p.code === code); if (pat) { document.getElementById('pat-code').value = pat.code; document.getElementById('pat-code').readOnly = true; document.getElementById('pat-name').value = pat.name; document.getElementById('addPatternModal').classList.add('active'); } }
+
         function editFoundryOrder(orderNo) {
             const order = app.foundryOrders.find(o => o.orderNo === orderNo); if (!order) return;
             document.getElementById('fo-order-no').value = order.orderNo; document.getElementById('fo-order-no').readOnly = true;
@@ -1292,7 +1297,7 @@
             const plData = app.patternLogs.map(l => { const p = app.patterns.find(pat => pat.code === l.patternCode); const v = app.vendors.find(ven => ven.code === l.vendorCode); return { LogDate: l.date, Type: l.type, PatternCode: l.patternCode, PatternName: p?p.name:'', VendorCode: l.vendorCode, VendorName: v?v.name:'' }; });
             combined += "=== PATTERN LOGS ===\n" + getCSVStr(plData);
 
-            downloadCSVBlob(combined, 'Manufacturing_All_Data.csv');
+            downloadCSVBlob(combined, 'Manufacturing_All_Data_V11.1.csv');
         }
 
         // ============================================================================
